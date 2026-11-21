@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Science of Memory & Spaced Repetition — Beginner Teaching Deck</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --surface-alt: #f1f5f9;
+      --ink: #0f172a;
+      --ink-muted: #475569;
+      --primary: #1d4ed8;
+      --primary-light: #dbeafe;
+      --accent: #0d9488;
+      --accent-light: #ccfbf1;
+      --warn: #b45309;
+      --warn-light: #fef3c7;
+      --danger: #b91c1c;
+      --danger-light: #fee2e2;
+      --border: #e2e8f0;
+      --shadow: 0 12px 32px rgba(15, 23, 42, 0.08);
+      --radius: 16px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans TC", sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      line-height: 1.6;
+    }
+
+    /* Top Header & Progress */
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      position: sticky;
+      top: 0;
+      z-index: 20;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: var(--ink);
+    }
+
+    .brand-tag {
+      background: var(--primary-light);
+      color: var(--primary);
+      padding: 0.2rem 0.55rem;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+    }
+
+    .progress-wrap {
+      flex: 1;
+      max-width: 360px;
+      height: 8px;
+      background: var(--surface-alt);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 11.1%;
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+      transition: width 0.3s ease;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 0.875rem;
+      color: var(--ink-muted);
+    }
+
+    button {
+      font-family: inherit;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--ink);
+      border-radius: 10px;
+      padding: 0.5rem 0.9rem;
+      font-size: 0.875rem;
+      font-weight: 600;
+      transition: all 0.15s ease;
+    }
+
+    button:hover:not(:disabled) {
+      border-color: var(--primary);
+      color: var(--primary);
+      background: #f8faff;
+    }
+
+    button:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    button.primary {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+    }
+
+    button.primary:hover:not(:disabled) {
+      background: #1e40af;
+      color: #fff;
+    }
+
+    /* Slide Stage */
+    main {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+    }
+
+    .slide {
+      display: none;
+      width: 100%;
+      max-width: 980px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 2.5rem 3rem;
+      min-height: 540px;
+      flex-direction: column;
+      justify-content: space-between;
+      animation: fadeIn 0.25s ease;
+    }
+
+    .slide.active {
+      display: flex;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .eyebrow {
+      display: inline-block;
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--primary);
+      margin-bottom: 0.5rem;
+    }
+
+    h1 {
+      font-size: 2.25rem;
+      line-height: 1.2;
+      margin-bottom: 1rem;
+      color: var(--ink);
+    }
+
+    h2 {
+      font-size: 1.75rem;
+      line-height: 1.25;
+      margin-bottom: 0.75rem;
+      color: var(--ink);
+    }
+
+    .lead {
+      font-size: 1.12rem;
+      color: var(--ink-muted);
+      max-width: 68ch;
+      margin-bottom: 1.5rem;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.25rem;
+      margin: 1rem 0;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1rem;
+      margin: 1rem 0;
+    }
+
+    .card {
+      background: var(--surface-alt);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.2rem;
+    }
+
+    .card h3 {
+      font-size: 1.05rem;
+      margin-bottom: 0.45rem;
+      color: var(--ink);
+    }
+
+    .card p, .card li {
+      font-size: 0.94rem;
+      color: var(--ink-muted);
+    }
+
+    .card.highlight {
+      background: var(--primary-light);
+      border-color: #93c5fd;
+    }
+
+    .card.highlight h3 { color: #1e3a8a; }
+    .card.highlight p { color: #1e40af; }
+
+    .card.teal {
+      background: var(--accent-light);
+      border-color: #5eead4;
+    }
+
+    .card.teal h3 { color: #115e59; }
+    .card.teal p { color: #134e4a; }
+
+    .myth-box {
+      margin-top: 1rem;
+      background: var(--warn-light);
+      border-left: 4px solid var(--warn);
+      padding: 0.85rem 1.1rem;
+      border-radius: 8px;
+      font-size: 0.93rem;
+      color: #78350f;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1rem 0;
+      font-size: 0.94rem;
+    }
+
+    th, td {
+      padding: 0.75rem 0.9rem;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+
+    th {
+      background: var(--surface-alt);
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    .badge-bad {
+      background: var(--danger-light);
+      color: var(--danger);
+      padding: 0.15rem 0.5rem;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 0.82rem;
+    }
+
+    .badge-good {
+      background: var(--accent-light);
+      color: #0f766e;
+      padding: 0.15rem 0.5rem;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 0.82rem;
+    }
+
+    .timeline-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      align-items: center;
+      margin: 1.25rem 0;
+    }
+
+    .step-pill {
+      flex: 1;
+      min-width: 145px;
+      background: var(--surface-alt);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 0.9rem;
+      text-align: center;
+    }
+
+    .step-pill strong {
+      display: block;
+      color: var(--primary);
+      font-size: 1.05rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .step-pill span {
+      font-size: 0.85rem;
+      color: var(--ink-muted);
+    }
+
+    /* Slide Footer with Wiki Traceability */
+    .slide-footer {
+      margin-top: 1.75rem;
+      padding-top: 0.9rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.82rem;
+      color: var(--ink-muted);
+    }
+
+    .wiki-badge {
+      background: #eef2ff;
+      color: #3730a3;
+      border: 1px solid #c7d2fe;
+      padding: 0.2rem 0.6rem;
+      border-radius: 6px;
+      font-weight: 600;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    }
+
+    /* Interactive Quiz Styling */
+    .quiz-item {
+      margin-bottom: 1rem;
+      padding: 1rem;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--surface-alt);
+    }
+
+    .quiz-item p {
+      font-weight: 600;
+      margin-bottom: 0.6rem;
+      font-size: 0.96rem;
+    }
+
+    .quiz-options {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .quiz-opt {
+      font-size: 0.85rem;
+      padding: 0.45rem 0.8rem;
+      border-radius: 8px;
+      background: var(--surface);
+    }
+
+    .quiz-opt.correct {
+      background: var(--accent-light);
+      border-color: var(--accent);
+      color: #115e59;
+    }
+
+    .quiz-opt.wrong {
+      background: var(--danger-light);
+      border-color: var(--danger);
+      color: var(--danger);
+    }
+
+    .quiz-feedback {
+      margin-top: 0.5rem;
+      font-size: 0.86rem;
+      font-weight: 600;
+    }
+
+    /* Bottom Navigation */
+    footer.nav-bar {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      padding: 0.85rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .hint {
+      font-size: 0.82rem;
+      color: var(--ink-muted);
+    }
+
+    /* Slide Drawer */
+    .drawer {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.45);
+      display: none;
+      justify-content: flex-end;
+      z-index: 50;
+    }
+
+    .drawer.open { display: flex; }
+
+    .drawer-panel {
+      width: 340px;
+      max-width: 90vw;
+      background: var(--surface);
+      height: 100%;
+      padding: 1.5rem;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+
+    .drawer-item {
+      text-align: left;
+      padding: 0.65rem 0.85rem;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--surface-alt);
+    }
+
+    .drawer-item.current {
+      border-color: var(--primary);
+      background: var(--primary-light);
+      color: #1e3a8a;
+    }
+
+    .drawer-item small {
+      display: block;
+      font-size: 0.75rem;
+      opacity: 0.8;
+    }
+
+    @media (max-width: 680px) {
+      .slide { padding: 1.5rem; min-height: auto; }
+      h1 { font-size: 1.65rem; }
+      h2 { font-size: 1.35rem; }
+      .hint { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="brand">
+      <span class="brand-tag">LLM WIKI DECK</span>
+      <span>The Science of Memory &amp; Spaced Repetition</span>
+    </div>
+    <div class="progress-wrap" aria-label="Presentation progress">
+      <div class="progress-bar" id="progressBar"></div>
+    </div>
+    <div class="header-actions">
+      <span id="slideCounter">Slide 1 / 9</span>
+      <button type="button" id="openMapBtn" aria-label="Open slide map">☰ Outline</button>
+    </div>
+  </header>
+
+  <main>
+    <!-- SLIDE 1: HOOK & OVERVIEW -->
+    <section class="slide active" data-title="1. Why Cramming Fails" data-wiki="WIKI-01 · WIKI-02 · WIKI-03">
+      <div>
+        <span class="eyebrow">Beginner's Guide to Evidence-Based Learning</span>
+        <h1>Why Cramming Fails—And How Your Brain Actually Builds Lasting Memory</h1>
+        <p class="lead">
+          Most students spend hours re-reading and highlighting notes, only to forget almost everything two weeks later. Cognitive science shows that memory is not a video recorder—it strengthens only when challenged at the right time.
+        </p>
+        <div class="grid-3">
+          <div class="card">
+            <h3>1. The Problem</h3>
+            <p>Fresh memories decay steeply within 24–48 hours unless reactivated.</p>
+          </div>
+          <div class="card highlight">
+            <h3>2. The Shift</h3>
+            <p>Replace passive re-reading with effortful retrieval spaced over time.</p>
+          </div>
+          <div class="card teal">
+            <h3>3. The Payoff</h3>
+            <p>Remember more in fewer total study hours—without all-nighters.</p>
+          </div>
+        </div>
+      </div>
+      <div class="slide-footer">
+        <span>Learning Goal: Understand the 4 core mechanisms behind durable memory</span>
+        <span class="wiki-badge">Source: WIKI-01, WIKI-02, WIKI-03</span>
+      </div>
+    </section>
+
+    <!-- SLIDE 2: THE FORGETTING CURVE -->
+    <section class="slide" data-title="2. The Forgetting Curve" data-wiki="WIKI-01 · The Decision Lab">
+      <div>
+        <span class="eyebrow">Mechanism 1 · The Baseline Problem</span>
+        <h2>The Ebbinghaus Forgetting Curve: Why Information Fades Fast</h2>
+        <p class="lead">
+          Discovered by psychologist Hermann Ebbinghaus (1885), the <strong>Forgetting Curve</strong> shows that memory loss is exponential—steepest right after learning, then leveling off.
+        </p>
+
+        <!-- SVG Diagram comparing Cramming vs Spaced Reviews -->
+        <div class="card" style="background:#fff;">
+          <svg viewBox="0 0 760 215" width="100%" height="auto" role="img" aria-label="Chart showing rapid forgetting without review versus flattened decay with spaced repetition">
+            <!-- Axes -->
+            <line x1="65" y1="20" x2="65" y2="175" stroke="#94a3b8" stroke-width="2" />
+            <line x1="65" y1="175" x2="730" y2="175" stroke="#94a3b8" stroke-width="2" />
+            <text x="15" y="30" font-size="12" fill="#475569" font-weight="600">100%</text>
+            <text x="22" y="102" font-size="12" fill="#475569" font-weight="600">50%</text>
+            <text x="28" y="175" font-size="12" fill="#475569" font-weight="600">0%</text>
+            <text x="65" y="198" font-size="12" fill="#475569">Day 0 (Learn)</text>
+            <text x="215" y="198" font-size="12" fill="#475569">Day 1</text>
+            <text x="385" y="198" font-size="12" fill="#475569">Day 4</text>
+            <text x="565" y="198" font-size="12" fill="#475569">Day 14+</text>
+
+            <!-- No Review Curve (Red) -->
+            <path d="M 65 25 Q 135 135, 230 152 T 720 168" fill="none" stroke="#dc2626" stroke-width="3" stroke-dasharray="6,4" />
+            <text x="455" y="150" font-size="12" fill="#b91c1c" font-weight="700">No Review: Steep Exponential Drop</text>
+
+            <!-- Spaced Review Curve (Teal/Blue) -->
+            <path d="M 65 25 Q 130 95, 220 105 L 220 25 Q 300 72, 395 82 L 395 25 Q 500 52, 585 60 L 585 25 Q 660 40, 725 45" fill="none" stroke="#0d9488" stroke-width="3.5" />
+            <circle cx="220" cy="25" r="5" fill="#1d4ed8" />
+            <circle cx="395" cy="25" r="5" fill="#1d4ed8" />
+            <circle cx="585" cy="25" r="5" fill="#1d4ed8" />
+            <text x="415" y="22" font-size="12" fill="#0f766e" font-weight="700">Spaced Reviews: Curve Flattens Over Time</text>
+          </svg>
+        </div>
+
+        <div class="myth-box">
+          <strong>Key Insight:</strong> Forgetting is not a broken brain—it is a natural pruning filter. Your first review within <strong>24 hours</strong> interrupts the steepest drop before the memory trace fades.
+        </div>
+      </div>
+      <div class="slide-footer">
+        <span>Takeaway: Timing your first review within 1 day matters most</span>
+        <span class="wiki-badge">Source: WIKI-01 (The Decision Lab)</span>
+      </div>
+    </section>
+
+    <!-- SLIDE 3: ACTIVE RECALL -->
+    <section class="slide" data-title="3. Active Recall vs Re-reading" data-wiki="WIKI-02 · Recallify">
+      <div>
+        <span class="eyebrow">Mechanism 2 · How to Study</span>
+        <h2>Active Recall: Pulling Info Out Beats Putting Info In</h2>
+        <p class="lead">
+          <strong>Active recall</strong> (the testing effect) means closing your notes and forcing your brain to retrieve an answer from scratch—instead of passively re-reading or highlighting.
+        </p>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Study Habit</th>
+              <th>What Your Brain Does</th>
+              <th>1-Week Retention</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Passive Re-reading / Highlighting</strong></td>
+              <td>Recognizes familiar words (<span class="badge-bad">Illusion of Fluency</span>)</td>
+              <td>~34% (fades quickly)</td>
+            </tr>
+            <tr>
+              <td><strong>Active Recall (Self-Testing)</strong></td>
+              <td>Rebuilds hippocampus–neocortex pathways (<span class="badge-good">Deep Signal</span>)</td>
+              <td>~80% (Roediger &amp; Karpicke)</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="grid-2">
+          <div class="card">
+            <h3>Try "Blurting"</h3>
+            <p>Read a section, close the book, write down everything you remember on a blank sheet, then check what you missed.</p>
+          </div>
+          <div class="card">
+            <h3>Turn Headings Into Questions</h3>
+            <p>Instead of reading notes titled "Forgetting Curve," ask yourself: <em>"Why does memory drop fastest in the first 24 hours?"</em></p>
+          </div>
+        </div>
+      </div>
+      <div class="slide-footer">
+        <span>Takeaway: If studying feels effortless, you are likely recognizing—not recalling</span>
+        <span class="wiki-badge">Source: WIKI-02 (Recallify)</span>
+      </div>
+    </section>
+
+    <!-- SLIDE 4: SPACED REPETITION -->
+    <section class="slide" data-title="4. Spaced Repetition Schedule" data-wiki="WIKI-03 · Mitti">
+      <div>
+        <span class="eyebrow">Mechanism 3 · When to Study</span>
+        <h2>Spaced Repetition: Expanding Review Intervals</h2>
+        <p class="lead">
+          Instead of cramming 5 hours in one night (massed practice), <strong>spaced repetition</strong> spreads short active-recall sessions across widening intervals—catching each memory right before it fades.
+        </p>
+
+        <div class="timeline-row">
+          <div class="step-pill">
+            <strong>Day 0</strong>
+            <span>Learn &amp; encode concept cleanly</span>
+          </div>
+          <div class="step-pill">
+            <strong>Day 1</strong>
+            <span>1st Active Recall check (stops steep drop)</span>
+          </div>
+          <div class="step-pill">
+            <strong>Day 3–7</strong>
+            <span>2nd check (rebuilds effortful trace)</span>
+          </div>
+          <div class="step-pill">
+            <strong>Day 14–16</strong>
+            <span>3rd check (curve flattens sharply)</span>
+          </div>
+          <div class="step-pill">
+            <strong>Day 30+</strong>
+            <span>Long-term maintenance review</span>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="card highlight">
+            <h3>Adaptive Feedback Rule</h3>
+            <p><strong>Missed a card?</strong> Reset its interval back to Day 1. <strong>Recalled easily?</strong> Double the gap until next review so you never waste time on what you already know.</p>
+          </div>
+          <div class="card">
+            <h3>Why Not Just Cram?</h3>
+            <p>Cramming boosts short-term familiarity for tomorrow morning, but without sleep and spacing gaps, the memory collapses within days.</p>
+          </div>
+        </div>
+      </div>
+      <div class="slide-footer">
+        <span>Takeaway: Space sessions out + test yourself at every checkpoint</span>
+        <span class="wiki-badge">Source: WIKI-03 (Mitti)</span>
+      </div>
+    </section>
+
+    <!-- SLIDE 5: DESIRABLE DIFFICULTIES & INTERLEAVING -->
+    <section class="slide" data-title="5. Desirable Difficulties & Interleaving" data-wiki="WIKI-04 · Bjork & Bjork (UCLA)">
+      <div>
+        <span class="eyebrow">Mechanism 4 · Productive Struggle</span>
+        <h2>Desirable Difficulties: Why Harder Practice Works Better</h2>
+        <p class="lead">
+          Psychologists Robert &amp; Elizabeth Bjork showed that study conditions feeling slower and harder in the moment—called <strong>desirable difficulties</strong>—create superior long-term retention and real-world transfer.
+        </p>
+
+        <div class="grid-2">
+          <div class="card">
+            <h3>Blocked Practice (Feels Easy, Weak Transfer)</h3>
+            <p><strong>Pattern:</strong> <code>AAA → BBB → CCC</code></p>
+            <p style="margin-top:0.5rem;">Solving 20 identical problems in a row lets your brain run on autopilot—you don't practice choosing <em>which</em> method applies.</p>
+          </div>
+          <div class="card teal">
+            <h3>Interleaved Practice (Feels Harder, Strong Transfer)</h3>
+            <p><strong>Pattern:</strong> <code>A → B → C → B → A → C</code></p>
+            <p style="margin-top:0.5rem;">Mixing different problem types forces your brain to compare, discriminate, and pick the right strategy every single time.</p>
+          </div>
+        </div>
+
+        <div class="myth-box">
+          <strong>Bjork's Core Warning:</strong> Do not confuse <em>current performance</em> during practice with <em>long-term learning</em>. Making mistakes during interleaved self-testing is a sign your brain is actively encoding—not failing.
+        </div>
+      </div>
+      <div class="slide-footer">
+        <span>Takeaway: Mix topics (interleave) and vary study contexts</span>
+        <span class="wiki-badge">Source: WIKI-04 (Bjork &amp; Bjork, 2011)</span>
+      </div>
+    </section>
+
+    <!-- SLIDE 6: ELABORATIVE ENCODING -->
+    <section class="slide" data-title="6. Elaborative Encoding" data-wiki="WIKI-05 · Cognitive Train">
+      <div>
+        <span class="eyebrow">Mechanism 5 · Building Strong Hooks</span>
+        <h2>Elaborative Encoding: Connect New Facts to What You Know</h2>
+        <p class="lead">
+          An isolated fact has only one fragile path back to recall. <strong>Elaborative encoding</strong> builds a web of meaning around new concepts so multiple cues can trigger the memory.
+        </p>
+
+        <div class="grid-3">
+          <div class="card">
+            <h3>1. Ask "Why" &amp; "How"</h3>
+            <p>Don't memorize a rule in isolation—explain <em>why</em> it makes sense (elaborative interrogation).</p>
+          </div>
+          <div class="card">
+            <h3>2. Teach a Beginner</h3>
+            <p>Translate technical jargon into plain, everyday analogies in your own words.</p>
+          </div>
+          <div class="card">
+            <h3>3. Self-Reference</h3>
+            <p>Connect concepts to your own life, habits, or past experiences to multiply retrieval hooks.</p>
+          </div>
+        </div>
+
+        <div class="card highlight" style="margin-top:1rem;">
+          <h3>Shallow vs. Deep Processing Example</h3>
+          <p><strong>Shallow:</strong> Repeating "Hippocampus consolidates declarative memory" 10 times.<br/>
+          <strong>Deep:</strong> Comparing the hippocampus to a temporary "scratchpad" that transfers important notes to the neocortex's "hard drive" overnight.</p>
+        </div>
+      </div>
+      <div class="slide-footer">
+        <span>Takeaway: Depth of processing beats raw hours spent staring at notes</span>
+        <span class="wiki-badge">Source: WIKI-05 (Cognitive Train)</span>
+      </div>
+    </section>
+
+    <!-- SLIDE 7: SLEEP & MEMORY CONSOLIDATION -->
+    <section class="slide" data-title="7. Sleep & Consolidation" data-wiki="WIKI-06 · Harvard Medical School">
+      <div>
+        <span class="eyebrow">Mechanism 6 · Biological Lock-In</span>
+        <h2>Sleep: The Hidden Step That Locks Memories In</h2>
+        <p class="lead">
+          Memory happens in three stages: <strong>Acquisition</strong> (learning), <strong>Consolidation</strong> (stabilizing), and <strong>Recall</strong> (retrieving). While you study awake, your brain runs consolidation mostly while you sleep.
+        </p>
+
+        <div class="grid-2">
+          <div class="card">
+            <h3>Slow-Wave (Deep) Sleep</h3>
+            <p>Replays and stabilizes factual/declarative knowledge (vocabulary, formulas, concepts) learned earlier that day.</p>
+          </div>
+          <div class="card">
+            <h3>REM Sleep</h3>
+            <p>Integrates procedural skills, emotional context, and creative connections across different memories.</p>
+          </div>
+        </div>
+
+        <div class="myth-box">
+          <strong>Why All-Nighters Backfire:</strong> Harvard sleep research shows the night <em>immediately after</em> learning is a critical consolidation window. Skipping sleep sacrifices the exact biological process that saves what you studied.
+        </div>
+      </div>
+      <div class="slide-footer">
+        <span>Takeaway: 7–9 hours of sleep is an active part of your study schedule</span>
+        <span class="wiki-badge">Source: WIKI-06 (Harvard Medical School)</span>
+      </div>
+    </section>
+
+    <!-- SLIDE 8: INTERACTIVE QUICK CHECK -->
+    <section class="slide" data-title="8. Quick Self-Check Quiz" data-wiki="WIKI-01 to WIKI-06">
+      <div>
+        <span class="eyebrow">Apply Active Recall Right Now</span>
+        <h2>Quick Self-Check: Test Your Understanding</h2>
+        <p class="lead" style="margin-bottom:1rem;">
+          Click an answer below to practice retrieval from the concepts you just learned.
+        </p>
+
+        <div class="quiz-item" data-answer="b">
+          <p>1. Why does re-reading highlighted notes often mislead students?</p>
+          <div class="quiz-options">
+            <button type="button" class="quiz-opt" data-choice="a">A. Highlighters erase short-term traces</button>
+            <button type="button" class="quiz-opt" data-choice="b">B. Familiarity creates an "illusion of fluency" without real recall</button>
+            <button type="button" class="quiz-opt" data-choice="c">C. Re-reading only works during REM sleep</button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-item" data-answer="c">
+          <p>2. Which study pattern uses Bjork's "interleaving" principle?</p>
+          <div class="quiz-options">
+            <button type="button" class="quiz-opt" data-choice="a">A. Studying Topic A for 3 hours straight before touching Topic B</button>
+            <button type="button" class="quiz-opt" data-choice="b">B. Pulling an all-nighter the night before an exam</button>
+            <button type="button" class="quiz-opt" data-choice="c">C. Mixing Problem Types A, B, and C within one practice session</button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+      </div>
+      <div class="slide-footer">
+        <span>Interactive Check grounded in WIKI-02 &amp; WIKI-04</span>
+        <span class="wiki-badge">Source: WIKI-01 – WIKI-06</span>
+      </div>
+    </section>
+
+    <!-- SLIDE 9: SUMMARY & ACTION PLAN -->
+    <section class="slide" data-title="9. Complete Learning Blueprint" data-wiki="All Wiki Pages (WIKI-01–06)">
+      <div>
+        <span class="eyebrow">Complete Learning Blueprint</span>
+        <h2>Your 4-Step Memory System (Mapped to Our LLM Wiki)</h2>
+        <p class="lead">
+          Combine all six principles into one repeatable study loop for any class or skill:
+        </p>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Step</th>
+              <th>What to Do</th>
+              <th>Wiki Reference</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>1. Encode Deeply</strong></td>
+              <td>Explain new concepts in your own words &amp; ask "why"</td>
+              <td><code>WIKI-05</code> Elaborative Encoding</td>
+            </tr>
+            <tr>
+              <td><strong>2. Retrieve Actively</strong></td>
+              <td>Close notes and self-test ("blurting" / flashcards)</td>
+              <td><code>WIKI-02</code> Active Recall</td>
+            </tr>
+            <tr>
+              <td><strong>3. Space &amp; Mix</strong></td>
+              <td>Review at Day 1 → 3 → 7 → 14+ and mix problem types</td>
+              <td><code>WIKI-01</code>, <code>WIKI-03</code>, <code>WIKI-04</code></td>
+            </tr>
+            <tr>
+              <td><strong>4. Sleep to Lock In</strong></td>
+              <td>Protect 7–9 hours of sleep after learning sessions</td>
+              <td><code>WIKI-06</code> Sleep Consolidation</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="slide-footer">
+        <span>End of Presentation · Grounded in 6 Ingested Wiki Articles</span>
+        <span class="wiki-badge">Source: WIKI-01 through WIKI-06</span>
+      </div>
+    </section>
+  </main>
+
+  <footer class="nav-bar">
+    <button type="button" id="prevBtn">← Previous</button>
+    <span class="hint">Tip: Use ← / → arrow keys on your keyboard to browse slides</span>
+    <button type="button" class="primary" id="nextBtn">Next →</button>
+  </footer>
+
+  <!-- Slide Map Drawer -->
+  <div class="drawer" id="drawer" role="dialog" aria-modal="true" aria-label="Slide outline">
+    <div class="drawer-panel">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+        <strong>Presentation Outline</strong>
+        <button type="button" id="closeMapBtn">✕</button>
+      </div>
+      <div id="drawerList" style="display:flex; flex-direction:column; gap:0.5rem;"></div>
+    </div>
+  </div>
+
+  <script>
+    const slides = Array.from(document.querySelectorAll('.slide'));
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const slideCounter = document.getElementById('slideCounter');
+    const progressBar = document.getElementById('progressBar');
+    const drawer = document.getElementById('drawer');
+    const drawerList = document.getElementById('drawerList');
+    let current = 0;
+
+    function renderDrawer() {
+      drawerList.innerHTML = '';
+      slides.forEach((s, idx) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'drawer-item' + (idx === current ? ' current' : '');
+        btn.innerHTML = `<strong>${s.dataset.title}</strong><small>${s.dataset.wiki}</small>`;
+        btn.onclick = () => {
+          goTo(idx);
+          drawer.classList.remove('open');
+        };
+        drawerList.appendChild(btn);
+      });
+    }
+
+    function goTo(index) {
+      current = Math.max(0, Math.min(slides.length - 1, index));
+      slides.forEach((s, i) => s.classList.toggle('active', i === current));
+      slideCounter.textContent = `Slide ${current + 1} / ${slides.length}`;
+      progressBar.style.width = `${((current + 1) / slides.length) * 100}%`;
+      prevBtn.disabled = current === 0;
+      nextBtn.disabled = current === slides.length - 1;
+      renderDrawer();
+    }
+
+    prevBtn.onclick = () => goTo(current - 1);
+    nextBtn.onclick = () => goTo(current + 1);
+    document.getElementById('openMapBtn').onclick = () => drawer.classList.add('open');
+    document.getElementById('closeMapBtn').onclick = () => drawer.classList.remove('open');
+    drawer.onclick = (e) => { if (e.target === drawer) drawer.classList.remove('open'); };
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight') goTo(current + 1);
+      if (e.key === 'ArrowLeft') goTo(current - 1);
+      if (e.key === 'Escape') drawer.classList.remove('open');
+    });
+
+    // Interactive Quiz Logic
+    document.querySelectorAll('.quiz-item').forEach((item) => {
+      const correct = item.dataset.answer;
+      const feedback = item.querySelector('.quiz-feedback');
+      item.querySelectorAll('.quiz-opt').forEach((btn) => {
+        btn.onclick = () => {
+          item.querySelectorAll('.quiz-opt').forEach((b) => b.classList.remove('correct', 'wrong'));
+          if (btn.dataset.choice === correct) {
+            btn.classList.add('correct');
+            feedback.style.color = '#0f766e';
+            feedback.textContent = 'Correct! Grounded directly in the Wiki concepts.';
+          } else {
+            btn.classList.add('wrong');
+            feedback.style.color = '#b91c1c';
+            feedback.textContent = 'Not quite—try another option!';
+          }
+        };
+      });
+    });
+
+    goTo(0);
+  </script>
+</body>
+</html>
